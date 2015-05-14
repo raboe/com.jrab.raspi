@@ -71,8 +71,7 @@ public class Driver {
 //					t1 = new Date().getTime();
 //					deviation = ImageComparator.getInstance().compareRGB(bi1,bi2);
 //					t2 = new Date().getTime();
-//					logger.info("Compare images: " + (t2-t1) + " ms");
-					
+//					logger.info("Compare images: " + (t2-t1) + " ms");					
 
 					if(deviation > threshold){
 						logger.info("Motion detected with deviation of " + deviation);
