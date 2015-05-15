@@ -20,7 +20,8 @@ public class Driver {
 		 CAPTURE_DELTA, 
 		 THRESHOLD, 
 		 IMAGE_COUNT,
-		 OUTPUT_FOLDER;
+		 OUTPUT_FOLDER,
+		 RECORD_VID;
 	}
 	
 	private static Properties appProps;
@@ -33,6 +34,7 @@ public class Driver {
 		int captureDelta = Integer.valueOf(appProps.getProperty(AppKey.CAPTURE_DELTA.name()));
 		int imageCounte = Integer.valueOf(appProps.getProperty(AppKey.IMAGE_COUNT.name()));
 		double threshold = Double.valueOf(appProps.getProperty(AppKey.THRESHOLD.name()));
+		boolean recordVids = Boolean.valueOf(appProps.getProperty(AppKey.RECORD_VID.name()));
 		
 		ImageConsumer consumer = new ImageConsumer();
 		new Thread(consumer).start();
@@ -69,11 +71,14 @@ public class Driver {
 					
 					if(deviation > threshold){
 						logger.info("Motion detected with deviation of " + deviation);
-						//PiCamCaputure.getInstance().captureVidToFile(d1);
-						consumer.addImage(fileName1,bi1);						
-						for(int i=0;i<imageCounte;i++){
-							BufferedImage detailImage = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.HIGH_RES);
-							consumer.addImage(Util.imageName(new Date(),i),detailImage);
+						if(recordVids){
+							PiCamCaputure.getInstance().captureToFile(PiCamCmd.VID,Util.vidName());							
+						}else{
+							consumer.addImage(fileName1,bi1);						
+							for(int i=0;i<imageCounte;i++){
+								BufferedImage detailImage = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.HIGH_RES);
+								consumer.addImage(Util.imageName(i),detailImage);
+							}	
 						}
 					}else{
 						logger.info("Current deviation is " + deviation);	
@@ -95,6 +100,7 @@ public class Driver {
 		defaultProps.put(AppKey.THRESHOLD,"10");
 		defaultProps.put(AppKey.IMAGE_COUNT,"3");
 		defaultProps.put(AppKey.OUTPUT_FOLDER,"./files/");
+		defaultProps.put(AppKey.RECORD_VID,"false");
 		
 		Properties appProps = new Properties(defaultProps);
 		InputStream input = null;
@@ -107,6 +113,7 @@ public class Driver {
 			logger.info(AppKey.THRESHOLD + " set to " + appProps.getProperty(AppKey.THRESHOLD.name()) + " %");
 			logger.info(AppKey.IMAGE_COUNT  + " set to " + appProps.getProperty(AppKey.IMAGE_COUNT.name()));
 			logger.info(AppKey.OUTPUT_FOLDER  + " set to " + appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
+			logger.info(AppKey.RECORD_VID + " set to " + appProps.getProperty(AppKey.RECORD_VID.name()));
 
 		} catch (IOException ex) {
 			logger.severe(ex.getMessage());

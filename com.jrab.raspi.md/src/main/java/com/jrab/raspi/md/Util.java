@@ -20,13 +20,6 @@ public class Util {
 	private static final String OUT = Driver.getAppProp(AppKey.OUTPUT_FOLDER); 
 	
 	/**
-	 * @return {@value #FILES}{@value #DATE_FORMAT} formatted with {@value #_JPG} suffix
-	 */
-	public static String imageName(){
-		return imageName(new Date());
-	}
-	
-	/**
 	 * @param date
 	 * @return {@value #FILES}{@value #DATE_FORMAT} formatted with {@value #_JPG} suffix.
 	 */
@@ -40,15 +33,15 @@ public class Util {
 	 * @param number number used in file name
 	 * @return {@value #FILES}{@value #DATE_FORMAT} formatted with {@value #_JPG} suffix.
 	 */
-	public static String imageName(Date date,int number){
+	public static String imageName(int number){
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-		return OUT+sdf.format(date)+SEP+number+_JPG;
+		return OUT+sdf.format(new Date())+SEP+number+_JPG;
 	}
 	
 	/**
 	 * @param date
 	 * @return {@value #FILES}{@value #DATE_FORMAT} formatted with {@value #_H264} suffix.	 */
-	public static String vidName(Date date){
+	private static String vidName(Date date){
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 		return OUT+sdf.format(date)+_H264;
 	}
