@@ -2,40 +2,37 @@ package com.jrab.raspi.md;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
-import java.util.logging.Level;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.jrab.raspi.md.PiCamCaputure.PiCamCmd;
 
 public class Driver {
 	private static final Logger logger = Logger.getLogger(Driver.class.getName());
-
-	private static final int DEFAULT_CAPTURE_DELTA = 500;
-	private static final double DEFAULT_THRESHOLD = 1d;//5d;
-
-	private static final int IMAGE_COUNT = 3;
-
+	
+	private static final String CONFIG_FILE = "md.cfg";
+	
+	enum AppKey {
+		 CAPTURE_DELTA, 
+		 THRESHOLD, 
+		 IMAGE_COUNT,
+		 OUTPUT_FOLDER;
+	}
+	
+	private static Properties appProps;
+	
 	public static void main(String args[]) {
 		
-		File subFolder = new File("./files");
-		if(!subFolder.exists()){
-			subFolder.mkdir();
-		}
+		appProps = loadProperties();
+		prepareFilesFolder(appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
 		
-		int captureDelta;
-		double threshold;
-
-		try {
-			threshold = Double.valueOf(args[0]);
-			captureDelta = Integer.valueOf(args[1]);
-			logger.info("Starting with - THRESHOLD(args[0])= " + threshold  + " and CAPTURE_DELTA(args[1])= " + captureDelta + " [ms]!");
-		} catch (NumberFormatException e) {
-			logger.info("Wrong parameters for THRESHOLD(args[0]) and CAPTURE_DELTA(args[1]) [ms]!");
-			logger.info("Using default for THRESHOLD(args[0])= " + DEFAULT_THRESHOLD + " and CAPTURE_DELTA(args[1])= "+DEFAULT_CAPTURE_DELTA + " [ms]!");
-			captureDelta = DEFAULT_CAPTURE_DELTA;
-			threshold = DEFAULT_THRESHOLD;
-		}
+		int captureDelta = Integer.valueOf(appProps.getProperty(AppKey.CAPTURE_DELTA.name()));
+		int imageCounte = Integer.valueOf(appProps.getProperty(AppKey.IMAGE_COUNT.name()));
+		double threshold = Double.valueOf(appProps.getProperty(AppKey.THRESHOLD.name()));
 		
 		ImageConsumer consumer = new ImageConsumer();
 		new Thread(consumer).start();
@@ -49,7 +46,7 @@ public class Driver {
 			try {
 				if(bi2!=null){
 					t1 = new Date().getTime();
-					long delta = DEFAULT_CAPTURE_DELTA - (t1-t_after_image1);
+					long delta = captureDelta - (t1-t_after_image1);
 					if(delta>0){
 						logger.info("... waiting " + delta + " ms");
 						Thread.sleep(delta);
@@ -74,7 +71,7 @@ public class Driver {
 						logger.info("Motion detected with deviation of " + deviation);
 						//PiCamCaputure.getInstance().captureVidToFile(d1);
 						consumer.addImage(fileName1,bi1);						
-						for(int i=0;i<IMAGE_COUNT;i++){
+						for(int i=0;i<imageCounte;i++){
 							BufferedImage detailImage = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.HIGH_RES);
 							consumer.addImage(Util.imageName(new Date(),i),detailImage);
 						}
@@ -84,10 +81,55 @@ public class Driver {
 					bi2 = null;
 				}
 			} catch (Exception e) {
-				logger.log(Level.SEVERE,e.getMessage());
+				logger.severe(e.getMessage());
 			} finally{
 				bi2 = bi1;
 			}
 		}
+	}
+	
+	private static Properties loadProperties() {
+		Properties defaultProps = new Properties();
+		
+		defaultProps.put(AppKey.CAPTURE_DELTA,"1000");
+		defaultProps.put(AppKey.THRESHOLD,"10");
+		defaultProps.put(AppKey.IMAGE_COUNT,"3");
+		defaultProps.put(AppKey.OUTPUT_FOLDER,"./files/");
+		
+		Properties appProps = new Properties(defaultProps);
+		InputStream input = null;
+
+		try {
+			input = new FileInputStream(CONFIG_FILE);
+			appProps.load(input);
+
+			logger.info(AppKey.CAPTURE_DELTA + " set to " + appProps.getProperty(AppKey.CAPTURE_DELTA.name()) + " ms");
+			logger.info(AppKey.THRESHOLD + " set to " + appProps.getProperty(AppKey.THRESHOLD.name()) + " %");
+			logger.info(AppKey.IMAGE_COUNT  + " set to " + appProps.getProperty(AppKey.IMAGE_COUNT.name()));
+			logger.info(AppKey.OUTPUT_FOLDER  + " set to " + appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
+
+		} catch (IOException ex) {
+			logger.severe(ex.getMessage());
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					logger.severe(e.getMessage());
+				}
+			}
+		}
+		return appProps;
+	}
+	
+	private static void prepareFilesFolder(String outputFolder){
+		File subFolder = new File(outputFolder);
+		if(!subFolder.exists()){
+			subFolder.mkdir();
+		}
+	}
+	
+	public static String getAppProp(AppKey key){
+		return appProps.get(key.name()).toString();
 	}
 }

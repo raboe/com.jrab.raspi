@@ -15,9 +15,7 @@ public class ImageComparator {
 	private static final Logger logger = Logger.getLogger(ImageComparator.class.getName());
 	
 	private static final int _0XFF = 0xff;
-	
 	private static final BigDecimal AREA_LENGTH_FACTOR = new BigDecimal(new Double(10d/110d)) ;
-	private static final BigDecimal AREA_SPACE_FACTOR = new BigDecimal(new Double(5d/110d));
 	
 	private List<AreaPoint> points = null;	
 	
