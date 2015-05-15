@@ -27,6 +27,7 @@ public class Driver {
 	private static Properties appProps;
 	
 	public static void main(String args[]) {
+		logger.info("Visit: https://github.com/raboe/com.jrab.raspi");
 		
 		appProps = loadProperties();
 		prepareFilesFolder(appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
@@ -96,11 +97,11 @@ public class Driver {
 	private static Properties loadProperties() {
 		Properties defaultProps = new Properties();
 		
-		defaultProps.put(AppKey.CAPTURE_DELTA,"1000");
-		defaultProps.put(AppKey.THRESHOLD,"10");
-		defaultProps.put(AppKey.IMAGE_COUNT,"3");
-		defaultProps.put(AppKey.OUTPUT_FOLDER,"./files/");
-		defaultProps.put(AppKey.RECORD_VID,"false");
+		defaultProps.put(AppKey.CAPTURE_DELTA.name(),"1000");
+		defaultProps.put(AppKey.THRESHOLD.name(),"10");
+		defaultProps.put(AppKey.IMAGE_COUNT.name(),"3");
+		defaultProps.put(AppKey.OUTPUT_FOLDER.name(),"./files/");
+		defaultProps.put(AppKey.RECORD_VID.name(),"false");
 		
 		Properties appProps = new Properties(defaultProps);
 		InputStream input = null;
