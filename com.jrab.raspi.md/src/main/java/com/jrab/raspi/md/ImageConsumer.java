@@ -16,6 +16,10 @@ public class ImageConsumer implements Runnable {
 		queue = new ArrayBlockingQueue<ImageData>(10);
 	}
 	
+	/**
+	 * @param fileName
+	 * @param image image to add to queue
+	 */
 	public void addImage(String fileName,BufferedImage image){
 		try {
 			queue.put(new ImageData(fileName,image));
@@ -31,7 +35,7 @@ public class ImageConsumer implements Runnable {
 		ImageData imageData;
 		while(true){
 			try {
-				logger.info("will take image!");
+				logger.info("... waiting for next image!");
 				imageData = queue.take();
 				logger.info("took image " + imageData.getName());
 				t1 = new Date().getTime();

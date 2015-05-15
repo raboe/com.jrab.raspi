@@ -6,11 +6,15 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jrab.raspi.md.PiCamCaputure.PiCamCmd;
+
 public class Driver {
 	private static final Logger logger = Logger.getLogger(Driver.class.getName());
 
 	private static final int DEFAULT_CAPTURE_DELTA = 500;
 	private static final double DEFAULT_THRESHOLD = 1d;//5d;
+
+	private static final int IMAGE_COUNT = 3;
 
 	public static void main(String args[]) {
 		
@@ -54,7 +58,7 @@ public class Driver {
 				Date d1 = new Date();
 				fileName1 = Util.imageName(d1);
 				t1 = d1.getTime();
-				bi1 = PiCamCaputure.getInstance().captureImageToBuffer();
+				bi1 = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.LOW_RES);
 				t_after_image1 = new Date().getTime();
 				logger.info("Capture image: " + (t_after_image1-t1) + " ms with resolution: " + bi1.getWidth() + "-" + bi1.getHeight());
 				
@@ -66,23 +70,14 @@ public class Driver {
 					t2 = new Date().getTime();
 					logger.info("Comparing images: " + (t2-t1) + " ms");
 					
-//					
-//					d1 = new Date();
-//					t1 = new Date().getTime();
-//					deviation = ImageComparator.getInstance().compareRGB(bi1,bi2);
-//					t2 = new Date().getTime();
-//					logger.info("Compare______________ images: " + (t2-t1) + " ms");					
-
 					if(deviation > threshold){
 						logger.info("Motion detected with deviation of " + deviation);
-						d1 = new Date();
-						t1 = new Date().getTime();
 						//PiCamCaputure.getInstance().captureVidToFile(d1);
-						PiCamCaputure.getInstance().captureDetailSeries(3);
-						t2 = new Date().getTime();
-//						logger.info("Capture vid: " + (t2-t1) + " ms");
-						
-						consumer.addImage(fileName1,bi1);
+						consumer.addImage(fileName1,bi1);						
+						for(int i=0;i<IMAGE_COUNT;i++){
+							BufferedImage detailImage = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.HIGH_RES);
+							consumer.addImage(Util.imageName(new Date(),i),detailImage);
+						}
 					}else{
 						logger.info("Current deviation is " + deviation);	
 					}

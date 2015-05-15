@@ -199,32 +199,6 @@ public class ImageComparator {
 		return areas;
 	}
 	
-	private List<AreaPoint> _findAreaPoints(int imageWidth,int imageHeight){
-		int areaLength = new BigDecimal(imageWidth).multiply(AREA_LENGTH_FACTOR).intValue();
-		int space = new BigDecimal(imageWidth).multiply(AREA_SPACE_FACTOR).intValue();
-		
-		List<AreaPoint> areas = new ArrayList<AreaPoint>();
-		
-		int ws = space;
-		int hs = space;
-		
-		while((ws+areaLength) < imageWidth){
-			while((hs+areaLength) < imageHeight){
-				AreaPoint cArea = new AreaPoint(ws,hs);
-				if(!areas.contains(cArea)){
-					logger.info("Added area: " + ws + "-" + hs);
-					areas.add(cArea);
-				}
-				hs = hs + areaLength + space;
-			}
-			hs = space;
-			ws = ws + areaLength + space;
-		}
-		logger.info("Areas created: " + areas.size());
-		
-		return areas;
-	}
-	
 	private void checkSize(BufferedImage im1,BufferedImage im2)throws Exception{
 		int width1 = im1.getWidth(null);
 		int width2 = im2.getWidth(null);
