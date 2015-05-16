@@ -23,7 +23,6 @@ public class ImageConsumer implements Runnable {
 	public void addImage(String fileName,BufferedImage image){
 		try {
 			queue.put(new ImageData(fileName,image));
-			logger.info("added image " + fileName);
 		} catch (InterruptedException e) {
 			logger.severe(e.getMessage());
 		}
@@ -35,12 +34,12 @@ public class ImageConsumer implements Runnable {
 		ImageData imageData;
 		while(true){
 			try {
-				logger.info("... waiting for next image!");
+//				logger.info("... waiting for next image!");
 				imageData = queue.take();
 				t1 = new Date().getTime();
 				Util.bufferToFile(imageData.getImage(),imageData.getName());
 				t2 = new Date().getTime();
-				logger.info("save " + imageData.getName() + " [" + (t2-t1) + " ms]");
+				logger.info("saved " + imageData.getName() + " [" + (t2-t1) + " ms]");
 			} catch (Exception e) {
 				logger.severe(e.getMessage());
 			}

@@ -69,7 +69,7 @@ public class ImageComparator {
 			}
 		}
 		double pGreen = 100 * diffGreen/(im1.getWidth() * im1.getHeight())/255.0;
-		return pGreen;
+		return Math.floor(pGreen);
 	}
 	
 	public double compareRGB(BufferedImage im1,BufferedImage im2)throws Exception{
@@ -98,7 +98,7 @@ public class ImageComparator {
 				}
 			}
 		}
-		return deviation;
+		return Math.floor(deviation);
 	}
 	
 	private double compareRGBInternal(BufferedImage im1,BufferedImage im2)throws Exception{
@@ -127,7 +127,7 @@ public class ImageComparator {
 		}
 		double n = width * height * 3;
 		double p = 100 * diff/n/255.0;
-		return p;
+		return Math.floor(p);
 	}
 	
 	
@@ -160,7 +160,7 @@ public class ImageComparator {
 		}
 		double n = areaLength * areaLength * 3;
 		double p = 100 * diff/n/255.0;
-		return p;
+		return Math.floor(p);
 	}
 	
 	private List<AreaPoint> findAreaPoints(int imageWidth,int imageHeight){
@@ -179,7 +179,7 @@ public class ImageComparator {
 			while((hs+deltaY) <= imageHeight-deltaY){
 				AreaPoint cArea = new AreaPoint(ws,hs);
 				if(!sensors.contains(cArea)){
-					logger.info("added at: [" + ws + "," + hs + "]");
+					logger.info("at: [" + ws + "," + hs + "]");
 					sensors.add(cArea);
 				}
 				hs = hs + 2*deltaY;
@@ -192,7 +192,7 @@ public class ImageComparator {
 			ws = ws + deltaX;
 			counter++;
 		}
-		logger.info(sensors.size() + " senors created");
+		logger.info(sensors.size() + " senor areas created");
 		logger.info("----------------------------------------------");
 		
 		return sensors;

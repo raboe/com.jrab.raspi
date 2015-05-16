@@ -51,7 +51,7 @@ public class Driver {
 					t1 = new Date().getTime();
 					long delta = captureDelta - (t1-t_after_image1);
 					if(delta>0){
-						logger.info("waiting [" + delta + " ms]");
+						logger.info("waiting\t [" + delta + " ms]");
 						Thread.sleep(delta);
 					}
 				}
@@ -60,7 +60,7 @@ public class Driver {
 				t1 = d1.getTime();
 				bi1 = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.LOW_RES);
 				t_after_image1 = new Date().getTime();
-				logger.info("capture: [" + (t_after_image1-t1) + " ms]");
+				logger.info("capture\t [" + (t_after_image1-t1) + " ms]");
 				
 				if(bi2!=null){
 					
@@ -68,10 +68,10 @@ public class Driver {
 					t1 = new Date().getTime();
 					double deviation = ImageComparator.getInstance().compareRGBByArea(bi1,bi2,threshold);
 					t2 = new Date().getTime();
-					logger.info("comparing [" + (t2-t1) + " ms]");
+					logger.info("comparing\t [" + (t2-t1) + " ms]");
 					
-					if(deviation > threshold){
-						logger.info("Motion detected with deviation of " + deviation);
+					if(deviation >= threshold){
+						logger.info("--> Motion detected: deviation " + deviation);
 						if(recordVids){
 							PiCamCaputure.getInstance().captureToFile(PiCamCmd.VID,Util.vidName());							
 						}else{
@@ -82,7 +82,7 @@ public class Driver {
 							}	
 						}
 					}else{
-						logger.info("deviation: " + deviation);	
+						logger.info("deviation\t " + deviation);	
 					}
 					bi2 = null;
 				}
