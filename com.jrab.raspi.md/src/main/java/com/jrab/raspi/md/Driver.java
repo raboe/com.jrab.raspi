@@ -27,10 +27,10 @@ public class Driver {
 	private static Properties appProps;
 	
 	public static void main(String args[]) {
-		logger.info("Visit: https://github.com/raboe/com.jrab.raspi");
-		
 		appProps = loadProperties();
 		prepareFilesFolder(appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
+		
+		startupLog();
 		
 		int captureDelta = Integer.valueOf(appProps.getProperty(AppKey.CAPTURE_DELTA.name()));
 		int imageCounte = Integer.valueOf(appProps.getProperty(AppKey.IMAGE_COUNT.name()));
@@ -51,7 +51,7 @@ public class Driver {
 					t1 = new Date().getTime();
 					long delta = captureDelta - (t1-t_after_image1);
 					if(delta>0){
-						logger.info("... waiting " + delta + " ms");
+						logger.info("waiting [" + delta + " ms]");
 						Thread.sleep(delta);
 					}
 				}
@@ -60,7 +60,7 @@ public class Driver {
 				t1 = d1.getTime();
 				bi1 = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.LOW_RES);
 				t_after_image1 = new Date().getTime();
-				logger.info("Capture image: " + (t_after_image1-t1) + " ms with resolution: " + bi1.getWidth() + "-" + bi1.getHeight());
+				logger.info("capture: [" + (t_after_image1-t1) + " ms]");
 				
 				if(bi2!=null){
 					
@@ -68,7 +68,7 @@ public class Driver {
 					t1 = new Date().getTime();
 					double deviation = ImageComparator.getInstance().compareRGBByArea(bi1,bi2,threshold);
 					t2 = new Date().getTime();
-					logger.info("Comparing images: " + (t2-t1) + " ms");
+					logger.info("comparing [" + (t2-t1) + " ms]");
 					
 					if(deviation > threshold){
 						logger.info("Motion detected with deviation of " + deviation);
@@ -82,7 +82,7 @@ public class Driver {
 							}	
 						}
 					}else{
-						logger.info("Current deviation is " + deviation);	
+						logger.info("deviation: " + deviation);	
 					}
 					bi2 = null;
 				}
@@ -109,13 +109,6 @@ public class Driver {
 		try {
 			input = new FileInputStream(CONFIG_FILE);
 			appProps.load(input);
-
-			logger.info(AppKey.CAPTURE_DELTA + " set to " + appProps.getProperty(AppKey.CAPTURE_DELTA.name()) + " ms");
-			logger.info(AppKey.THRESHOLD + " set to " + appProps.getProperty(AppKey.THRESHOLD.name()) + " %");
-			logger.info(AppKey.IMAGE_COUNT  + " set to " + appProps.getProperty(AppKey.IMAGE_COUNT.name()));
-			logger.info(AppKey.OUTPUT_FOLDER  + " set to " + appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
-			logger.info(AppKey.RECORD_VID + " set to " + appProps.getProperty(AppKey.RECORD_VID.name()));
-
 		} catch (IOException ex) {
 			logger.severe(ex.getMessage());
 		} finally {
@@ -139,5 +132,23 @@ public class Driver {
 	
 	public static String getAppProp(AppKey key){
 		return appProps.get(key.name()).toString();
+	}
+	
+	private static void startupLog(){
+		logger.info("----------- PiCam Motion Detection -----------");
+		logger.info("github https://github.com/raboe/com.jrab.raspi");
+		logger.info("----------------------------------------------");
+		
+		logger.info(AppKey.CAPTURE_DELTA + ":\t" + appProps.getProperty(AppKey.CAPTURE_DELTA.name()) + " ms");
+		logger.info(AppKey.THRESHOLD + ":\t" + appProps.getProperty(AppKey.THRESHOLD.name()) + " %");
+		logger.info(AppKey.IMAGE_COUNT  + ":\t" + appProps.getProperty(AppKey.IMAGE_COUNT.name()));
+		logger.info(AppKey.OUTPUT_FOLDER  + ":\t" + appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
+		logger.info(AppKey.RECORD_VID + ":\t" + appProps.getProperty(AppKey.RECORD_VID.name()));
+		
+		logger.info("--------------- PiCam commands ---------------");		
+		logger.info("high res:\t " + PiCamCaputure.PiCamCmd.LOW_RES.getCmd());		
+		logger.info("low res:\t " + PiCamCaputure.PiCamCmd.HIGH_RES.getCmd());
+		logger.info("vid:\t " + PiCamCaputure.PiCamCmd.VID.getCmd());
+		logger.info("----------------------------------------------");
 	}
 }

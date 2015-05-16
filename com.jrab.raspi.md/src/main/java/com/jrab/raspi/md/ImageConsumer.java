@@ -37,11 +37,10 @@ public class ImageConsumer implements Runnable {
 			try {
 				logger.info("... waiting for next image!");
 				imageData = queue.take();
-				logger.info("took image " + imageData.getName());
 				t1 = new Date().getTime();
 				Util.bufferToFile(imageData.getImage(),imageData.getName());
 				t2 = new Date().getTime();
-				logger.info("Saving image " + imageData.getName() + ": " + (t2-t1) + " ms");
+				logger.info("save " + imageData.getName() + " [" + (t2-t1) + " ms]");
 			} catch (Exception e) {
 				logger.severe(e.getMessage());
 			}

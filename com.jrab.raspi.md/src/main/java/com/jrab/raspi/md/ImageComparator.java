@@ -166,10 +166,10 @@ public class ImageComparator {
 	private List<AreaPoint> findAreaPoints(int imageWidth,int imageHeight){
 		int deltaX = imageWidth/10;
 		int deltaY = imageHeight/10;
+		logger.info("------------- setting up sensors -------------");
+		logger.info("single size: [" + deltaX + "," + deltaY +"]");
 		
-		logger.info("deltaX: " + deltaX + " - deltaY: " + deltaY);
-		
-		List<AreaPoint> areas = new ArrayList<AreaPoint>();
+		List<AreaPoint> sensors = new ArrayList<AreaPoint>();
 		
 		int ws = deltaX;
 		int hs = deltaY;
@@ -178,9 +178,9 @@ public class ImageComparator {
 		while((ws+deltaX) <= imageWidth-deltaX){
 			while((hs+deltaY) <= imageHeight-deltaY){
 				AreaPoint cArea = new AreaPoint(ws,hs);
-				if(!areas.contains(cArea)){
-					logger.info("Added area: " + ws + "-" + hs);
-					areas.add(cArea);
+				if(!sensors.contains(cArea)){
+					logger.info("added at: [" + ws + "," + hs + "]");
+					sensors.add(cArea);
 				}
 				hs = hs + 2*deltaY;
 			}
@@ -192,9 +192,10 @@ public class ImageComparator {
 			ws = ws + deltaX;
 			counter++;
 		}
-		logger.info("Areas created: " + areas.size());
+		logger.info(sensors.size() + " senors created");
+		logger.info("----------------------------------------------");
 		
-		return areas;
+		return sensors;
 	}
 	
 	private void checkSize(BufferedImage im1,BufferedImage im2)throws Exception{
