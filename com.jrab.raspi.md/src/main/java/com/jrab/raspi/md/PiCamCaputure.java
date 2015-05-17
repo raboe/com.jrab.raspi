@@ -16,6 +16,8 @@ public class PiCamCaputure {
 	private static final String TO_BUFFER = "-";
 
 	 enum PiCamCmd {
+		 
+		 
 		LOW_RES("raspistill -n -vf -hf -t 1 -w 480 -h 360 -e jpg -o "), 
 		HIGH_RES("raspistill -n -vf -hf -t 1 -w 2000 -h 1500 -e jpg -o "), 
 		VID("raspivid --nopreview -vs -vf -hf -w 800 -h 600 -t 5000 -o ");
