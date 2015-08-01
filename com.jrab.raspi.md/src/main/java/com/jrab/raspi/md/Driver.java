@@ -9,33 +9,33 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import com.jrab.raspi.md.PiCamCaputure.PiCamCmd;
-
 public class Driver {
 	private static final Logger logger = Logger.getLogger(Driver.class.getName());
 	
 	private static final String CONFIG_FILE = "md.cfg";
 	
-	enum AppKey {
-		 CAPTURE_DELTA, 
-		 THRESHOLD, 
-		 IMAGE_COUNT,
-		 OUTPUT_FOLDER,
-		 RECORD_VID;
-	}
+	private static final String CAPTURE_DELTA ="CAPTURE_DELTA"; 
+	private static final String THRESHOLD = "THRESHOLD";
+	private static final String IMAGE_COUNT = "IMAGE_COUNT";
+	private static final String OUTPUT_FOLDER = "OUTPUT_FOLDER";
+	private static final String RECORD_VID = "RECORD_VID";
+	private static final String LOW_RES_CMD = "LOW_RES_CMD";
+	private static final String HIGH_RES_CMD = "HIGH_RES_CMD";
+	private static final String VID_CMD = "VID_CMD";
+	
 	
 	private static Properties appProps;
 	
 	public static void main(String args[]) {
 		appProps = loadProperties();
-		prepareFilesFolder(appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
+		prepareFilesFolder(getAppProp(OUTPUT_FOLDER));
 		
 		startupLog();
 		
-		int captureDelta = Integer.valueOf(appProps.getProperty(AppKey.CAPTURE_DELTA.name()));
-		int imageCounte = Integer.valueOf(appProps.getProperty(AppKey.IMAGE_COUNT.name()));
-		double threshold = Double.valueOf(appProps.getProperty(AppKey.THRESHOLD.name()));
-		boolean recordVids = Boolean.valueOf(appProps.getProperty(AppKey.RECORD_VID.name()));
+		int captureDelta = Integer.valueOf(getAppProp(CAPTURE_DELTA));
+		int imageCounte = Integer.valueOf(getAppProp(IMAGE_COUNT));
+		double threshold = Double.valueOf(getAppProp(THRESHOLD));
+		boolean recordVids = Boolean.valueOf(getAppProp(RECORD_VID));
 		
 		ImageConsumer consumer = new ImageConsumer();
 		new Thread(consumer).start();
@@ -55,10 +55,12 @@ public class Driver {
 						Thread.sleep(delta);
 					}
 				}
+				
 				Date d1 = new Date();
 				fileName1 = Util.imageName(d1);
 				t1 = d1.getTime();
-				bi1 = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.LOW_RES);
+				
+				bi1 = PiCamCaputure.getInstance().captureImageToBuffer(getAppProp(LOW_RES_CMD));
 				t_after_image1 = new Date().getTime();
 				logger.info("capture\t [" + (t_after_image1-t1) + " ms]");
 				
@@ -73,11 +75,11 @@ public class Driver {
 					if(deviation >= threshold){
 						logger.info("--> Motion detected: deviation " + deviation);
 						if(recordVids){
-							PiCamCaputure.getInstance().captureToFile(PiCamCmd.VID,Util.vidName());							
+							PiCamCaputure.getInstance().captureToFile(getAppProp(VID_CMD),Util.vidName());							
 						}else{
 							consumer.addImage(fileName1,bi1);						
 							for(int i=0;i<imageCounte;i++){
-								BufferedImage detailImage = PiCamCaputure.getInstance().captureImageToBuffer(PiCamCmd.HIGH_RES);
+								BufferedImage detailImage = PiCamCaputure.getInstance().captureImageToBuffer(getAppProp(HIGH_RES_CMD));
 								consumer.addImage(Util.imageName(i),detailImage);
 							}	
 						}
@@ -97,11 +99,14 @@ public class Driver {
 	private static Properties loadProperties() {
 		Properties defaultProps = new Properties();
 		
-		defaultProps.put(AppKey.CAPTURE_DELTA.name(),"1000");
-		defaultProps.put(AppKey.THRESHOLD.name(),"10");
-		defaultProps.put(AppKey.IMAGE_COUNT.name(),"3");
-		defaultProps.put(AppKey.OUTPUT_FOLDER.name(),"./files/");
-		defaultProps.put(AppKey.RECORD_VID.name(),"false");
+		defaultProps.put(CAPTURE_DELTA,"1000");
+		defaultProps.put(THRESHOLD,"10");
+		defaultProps.put(IMAGE_COUNT,"3");
+		defaultProps.put(OUTPUT_FOLDER,"./files/");
+		defaultProps.put(RECORD_VID,"false");
+		defaultProps.put(LOW_RES_CMD,"raspistill -n -t 1 -w 480 -h 360 -e jpg -o"); 
+		defaultProps.put(HIGH_RES_CMD,"raspistill -n -t 1 -w 2000 -h 1500 -e jpg -o"); 
+		defaultProps.put(VID_CMD,"raspivid --nopreview -vs -w 800 -h 600 -t 5000 -o");
 		
 		Properties appProps = new Properties(defaultProps);
 		InputStream input = null;
@@ -130,8 +135,12 @@ public class Driver {
 		}
 	}
 	
-	public static String getAppProp(AppKey key){
-		return appProps.get(key.name()).toString();
+	public static String getAppProp(String key){
+		return appProps.getProperty(key);
+	}
+	
+	static String getOutFolder(){
+		return getAppProp(OUTPUT_FOLDER);
 	}
 	
 	private static void startupLog(){
@@ -139,16 +148,16 @@ public class Driver {
 		logger.info("github https://github.com/raboe/com.jrab.raspi");
 		logger.info("----------------------------------------------");
 		
-		logger.info(AppKey.CAPTURE_DELTA + ":\t" + appProps.getProperty(AppKey.CAPTURE_DELTA.name()) + " ms");
-		logger.info(AppKey.THRESHOLD + ":\t" + appProps.getProperty(AppKey.THRESHOLD.name()) + " %");
-		logger.info(AppKey.IMAGE_COUNT  + ":\t" + appProps.getProperty(AppKey.IMAGE_COUNT.name()));
-		logger.info(AppKey.OUTPUT_FOLDER  + ":\t" + appProps.getProperty(AppKey.OUTPUT_FOLDER.name()));
-		logger.info(AppKey.RECORD_VID + ":\t" + appProps.getProperty(AppKey.RECORD_VID.name()));
+		logger.info(CAPTURE_DELTA + ":\t" + getAppProp(CAPTURE_DELTA) + " ms");
+		logger.info(THRESHOLD + ":\t" + getAppProp(THRESHOLD) + " %");
+		logger.info(IMAGE_COUNT  + ":\t" + getAppProp(IMAGE_COUNT));
+		logger.info(OUTPUT_FOLDER  + ":\t" + getAppProp(OUTPUT_FOLDER));
+		logger.info(RECORD_VID + ":\t" + getAppProp(RECORD_VID));
 		
 		logger.info("--------------- PiCam commands ---------------");		
-		logger.info("high res:\t " + PiCamCaputure.PiCamCmd.LOW_RES.getCmd());		
-		logger.info("low res:\t " + PiCamCaputure.PiCamCmd.HIGH_RES.getCmd());
-		logger.info("vid:\t " + PiCamCaputure.PiCamCmd.VID.getCmd());
+		logger.info(HIGH_RES_CMD + ":\t" + getAppProp(HIGH_RES_CMD));		
+		logger.info(LOW_RES_CMD + ":\t" + getAppProp(LOW_RES_CMD));
+		logger.info(VID_CMD + ":\t\t" + getAppProp(VID_CMD));
 		logger.info("----------------------------------------------");
 	}
 }

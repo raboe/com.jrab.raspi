@@ -13,25 +13,7 @@ public class PiCamCaputure {
 
 	private static final Logger logger = Logger.getLogger(PiCamCaputure.class.getName());
 
-	private static final String TO_BUFFER = "-";
-
-	 enum PiCamCmd {
-		 
-		 
-		LOW_RES("raspistill -n -vf -hf -t 1 -w 480 -h 360 -e jpg -o "), 
-		HIGH_RES("raspistill -n -vf -hf -t 1 -w 2000 -h 1500 -e jpg -o "), 
-		VID("raspivid --nopreview -vs -vf -hf -w 800 -h 600 -t 5000 -o ");
-
-		private final String cmd;
-
-		private PiCamCmd(String cmd) {
-			this.cmd = cmd;
-		}
-
-		String getCmd() {
-			return cmd;
-		}
-	}
+	private static final String TO_BUFFER = " -";
 
 	private static class LazyHolder {
 		private static final PiCamCaputure INSTANCE = new PiCamCaputure();
@@ -51,9 +33,9 @@ public class PiCamCaputure {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public BufferedImage captureImageToBuffer(PiCamCmd cmd) throws IOException,InterruptedException {
+	public BufferedImage captureImageToBuffer(String cmd) throws IOException,InterruptedException {
 		Runtime rt = Runtime.getRuntime();
-		Process p = rt.exec(cmd.getCmd() + TO_BUFFER);
+		Process p = rt.exec(cmd + TO_BUFFER);
 
 		BufferedImage bufferedImage = ImageIO.read(p.getInputStream());
 		p.waitFor(5000, TimeUnit.MILLISECONDS);
@@ -67,11 +49,11 @@ public class PiCamCaputure {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void captureToFile(PiCamCmd cmd, String fileName)
+	public void captureToFile(String cmd, String fileName)
 			throws IOException, InterruptedException {
 		Runtime rt = Runtime.getRuntime();
 
-		Process p = rt.exec(cmd.getCmd() + fileName);
+		Process p = rt.exec(cmd + fileName);
 
 		BufferedReader inputReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String line;

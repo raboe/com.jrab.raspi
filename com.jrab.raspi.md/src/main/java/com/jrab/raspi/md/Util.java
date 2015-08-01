@@ -8,8 +8,6 @@ import java.util.Date;
 
 import javax.imageio.ImageIO;
 
-import com.jrab.raspi.md.Driver.AppKey;
-
 public class Util {
 
 	private static final String _H264 = ".h264";
@@ -17,7 +15,6 @@ public class Util {
 	private static final String JPEG = "JPEG";
 	private static final String SEP = "_";
 	private static final String DATE_FORMAT = "ddMMyy_HH_mm_ss";
-	private static final String OUT = Driver.getAppProp(AppKey.OUTPUT_FOLDER); 
 	
 	/**
 	 * @param date
@@ -25,7 +22,7 @@ public class Util {
 	 */
 	public static String imageName(Date date){
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-		return OUT+sdf.format(date)+_JPG;
+		return Driver.getOutFolder()+sdf.format(date)+_JPG;
 	}
 	
 	/**
@@ -35,7 +32,7 @@ public class Util {
 	 */
 	public static String imageName(int number){
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-		return OUT+sdf.format(new Date())+SEP+number+_JPG;
+		return Driver.getOutFolder()+sdf.format(new Date())+SEP+number+_JPG;
 	}
 	
 	/**
@@ -43,7 +40,7 @@ public class Util {
 	 * @return {@value #FILES}{@value #DATE_FORMAT} formatted with {@value #_H264} suffix.	 */
 	private static String vidName(Date date){
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-		return OUT+sdf.format(date)+_H264;
+		return Driver.getOutFolder()+sdf.format(date)+_H264;
 	}
 	
 	/**
